@@ -1,7 +1,7 @@
 {
     "name":"MSI POC",
     "version":1.0,
-    "source":"$wdroot/../data/msi",
+    "source":"/Users/ariefdarmawan/Temp/msi",
     "map":"$wdroot/../data/map",
     "connections":{
         "default":{

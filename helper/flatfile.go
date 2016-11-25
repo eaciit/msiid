@@ -45,7 +45,7 @@ func (f *FlatFile) Exec(take, skip int) error {
 	p := 0
 	for f.scannerptr.Scan() {
 		i++
-		if i > take {
+		if i > skip {
 			p++
 			scanout := f.scannerptr.Text()
 			if f.IterFn != nil {

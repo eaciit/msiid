@@ -76,6 +76,11 @@ func prepareConn() dbox.IConnection {
 }
 
 func processfile(f os.FileInfo, take, skip int) error {
+	conn := prepareConn()
+	conn.Connect()
+	defer conn.Close()
+	tablename := strings.Split(f.Name(), ".")[0]
+
 	filenamepath := filepath.Join(datapath, f.Name())
 	mapfilepath := filepath.Join(mappath, f.Name())
 
@@ -119,6 +124,9 @@ func processfile(f os.FileInfo, take, skip int) error {
 		defer mf.Close()
 	}
 	mf.Exec(0, 0)
+	qmap := conn.NewQuery().SetConfig("multiexec", true).From("metadata").Save()
+	qmap.Exec(toolkit.M{}.Set("data", toolkit.M{}.Set("_id", tablename).Set("model", maps)))
+	qmap.Close()
 
 	//-- get line count
 	cmdout, err := toolkit.RunCommand("wc", "-l", filenamepath)
@@ -135,10 +143,6 @@ func processfile(f os.FileInfo, take, skip int) error {
 	}
 	log.Info(toolkit.Sprintf("Processing %s - %d lines", f.Name(), linecount))
 
-	conn := prepareConn()
-	conn.Connect()
-	defer conn.Close()
-	tablename := strings.Split(f.Name(), ".")[0]
 	q := conn.NewQuery().SetConfig("multiexec", true).From(tablename).Save()
 	//defer q.Close()
 
@@ -159,7 +163,15 @@ func processfile(f os.FileInfo, take, skip int) error {
 		ts := strings.Split(t, "\t")
 		for k, v := range ts {
 			if k < len(maps) {
-				records.Set(maps[k].Get("name").(string), v)
+				fi := maps[k]
+				ftype := fi.Get("fieldtype").(string)
+				if ftype == "decimal" {
+					records.Set(fi.Get("name").(string), toolkit.ToFloat64(v, 4, toolkit.RoundingAuto))
+				} else if strings.Contains(ftype, "int") {
+					records.Set(fi.Get("name").(string), toolkit.ToInt(v, toolkit.RoundingAuto))
+				} else {
+					records.Set(fi.Get("name").(string), v)
+				}
 			}
 		}
 		iread++

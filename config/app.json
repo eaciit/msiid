@@ -1,6 +1,8 @@
 {
     "name":"MSI POC",
     "version":1.0,
+    "server":"0.0.0.0",
+    "port":9100,
     "source":"/Users/ariefdarmawan/Temp/msi",
     "map":"$wdroot/../data/map",
     "connections":{

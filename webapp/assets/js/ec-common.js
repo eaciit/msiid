@@ -237,8 +237,8 @@ function ajaxPost(url, data, fnOk, fnNok) {
     $.ajax({
         url: url,
         type: 'POST',
-        data: ko.mapping.toJSON(data),
-        //data: data, 
+        //data: ko.mapping.toJSON(data),
+        data: data, 
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             if (typeof fnOk == "function") fnOk(data);

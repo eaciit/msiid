@@ -1,11 +1,11 @@
 package main
 
 import (
-	//_ "github.com/eaciit/dbox/dbc/mongo"
-	//"github.com/eaciit/dbox"
-	//"github.com/eaciit/orm"
 	"os"
 	"path/filepath"
+
+	"github.com/eaciit/dbox"
+	_ "github.com/eaciit/dbox/dbc/mongo"
 
 	"github.com/eaciit/config"
 	"github.com/eaciit/knot/knot.v1"
@@ -22,7 +22,7 @@ func init() {
 }
 
 func App(wd string) *knot.App {
-	app := knot.NewApp("colony-manager")
+	app := knot.NewApp(config.Get("name").(string))
 	if wd == "" {
 		wd, _ = os.Getwd()
 	}
@@ -56,4 +56,20 @@ func main() {
 	wd := config.GetDefault("workingpath", "").(string)
 	app := App(wd)
 	knot.StartApp(app, toolkit.Sprintf("%s:%d", serveraddress, port))
+}
+
+func prepareConn() dbox.IConnection {
+	ci := &dbox.ConnectionInfo{}
+	ciconn := config.Get("connections").(map[string]interface{})["default"].(map[string]interface{})
+
+	ci.Host = ciconn["host"].(string)
+	ci.UserName = ciconn["user"].(string)
+	ci.Password = ciconn["password"].(string)
+	ci.Database = ciconn["dbname"].(string)
+
+	conn, e := dbox.NewConnection("mongo", ci)
+	if e != nil {
+		panic(e.Error())
+	}
+	return conn
 }

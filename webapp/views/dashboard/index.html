@@ -1,0 +1,48 @@
+<!--
+    <_script type="text/babel">
+    var ExampleApplication = React.createClass({
+    getInitialState:function(){
+        return {
+            show: true
+        };
+    },
+    buttonClicked: function(){
+        this.setState({
+            elapsed:isNaN(this.state.elapsed)?0:this.state.elapsed+1000
+        });
+        //alert("will run");
+        setInterval(function(x){
+            x.setState({
+                elapsed:isNaN(x.state.elapsed)?100:x.state.elapsed+100
+            });
+            }(this), 50);
+    },
+    render: function() {
+        var elapsed = Math.round(this.state.elapsed  / 100);
+        var seconds = elapsed / 10 + (elapsed % 10 ? '' : '.0' );
+        var buttons = [];
+        buttons.push(<span><button onClick={this.buttonClicked}>Click Me</button><br/></span>)
+        //buttons.push(<span><button onClick={this.buttonClicked}>Click Me</button><br/></span>)
+        if(isNaN(seconds))seconds=0;
+        var message = (
+           <msg>
+           <span>React has been successfully running for <b>{seconds}</b> seconds</span>
+           <br/>
+           {buttons}
+           </msg>
+           );
+
+        return <p>{message}</p>;
+    }
+    });
+
+    var start = new Date().getTime();
+    setInterval(function() {
+    ReactDOM.render(
+        <ExampleApplication elapsed={new Date().getTime() - start} />,
+        document.getElementById('container')
+    );
+    }, 50);
+</script>
+-->
+

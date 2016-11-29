@@ -32,6 +32,7 @@ func (r *Rest) Tables(ctx *knot.WebContext) interface{} {
 type DataRequest struct {
 	Table string
 	Take  int
+	Skip  int
 }
 
 var e error
@@ -43,11 +44,18 @@ func (r *Rest) Data(ctx *knot.WebContext) interface{} {
 	datareq := new(DataRequest)
 	datareq.Table = ctx.QueryDef("table", "")
 	datareq.Take = toolkit.ToInt(ctx.QueryDef("take", "10"), toolkit.RoundingAuto)
+	datareq.Skip = toolkit.ToInt(ctx.QueryDef("skip", "0"), toolkit.RoundingAuto)
 
 	c := conn()
 	defer c.Close()
 
-	cs, ecs := c.NewQuery().From(datareq.Table).Take(datareq.Take).Select().Cursor(nil)
+	qbase := c.NewQuery().From(datareq.Table)
+	if datareq.Skip > 0 {
+		qbase = qbase.Skip(datareq.Skip)
+	}
+	qbase = qbase.Select()
+
+	cs, ecs := qbase.Take(datareq.Take).Cursor(nil)
 	if ecs != nil {
 		return res.SetErrorTxt("Error preparing query: " + ecs.Error())
 	}
@@ -56,5 +64,8 @@ func (r *Rest) Data(ctx *knot.WebContext) interface{} {
 	data := []*toolkit.M{}
 	cs.Fetch(&data, 0, false)
 
-	return res.SetData(data)
+	ccount, _ := qbase.Cursor(nil)
+	count := ccount.Count()
+
+	return res.SetData(toolkit.M{}.Set("data", data).Set("count", count))
 }

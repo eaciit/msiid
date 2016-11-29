@@ -97,11 +97,22 @@
         if(found){
             columns = [];
             model.forEach(function(f,i){
-                if(i<10){
-                    columns.push({
-                        field:f.name
-                    });
-                }
+                //if(i<10){
+                    if(f.fieldtype.indexOf("int")>=0 || f.fieldtype.indexOf("decimal")>0){
+                        columns.push({
+                            field:f.name,
+                            width:80,
+                            attributes:{
+                                style:"text-align:right"
+                            }
+                        });
+                    }else{
+                        columns.push({
+                            field:f.name,
+                            width:120
+                        });
+                    }
+                //}
             });
 
             $("#grid").html("");
@@ -117,13 +128,17 @@
                     }
                 },
                 schema:{
-                    data:"Data"
+                    data:"Data.data",
+                    total:"Data.count"
                 },
-                pageSize:10
+                serverPaging: true,
+                serverSorting: true,
+                pageSize: 10
             });
             
             $("#grid").kendoGrid({
                 dataSource:dsgrid,
+                pageable:true,
                 //height: 543,
                 columns:columns});
         }

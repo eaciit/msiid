@@ -35,7 +35,7 @@
                 Data Vizualizer
             </div>
             <div class="panel-body">
-                <div id="griddata" class="grid"></div>
+                <div id="chart" class="grid"></div>
             </div>
         </div>
 
@@ -44,7 +44,7 @@
                 Data Viewer
             </div>
             <div class="panel-body">
-                <div id="griddata" class="grid"></div>
+                <div id="grid" class="grid"></div>
             </div>
         </div>
     </div>
@@ -94,7 +94,20 @@
         })
 
         if(found){
-            //alert(kendo.stringify(model));
+            columns = [];
+            model.forEach(function(f,i){
+                if(i<10){
+                    columns.push({
+                        field:f.name
+                    });
+                }
+            });
+
+            $("#grid").html("");
+            if($("#grid").data("kendoGrid")!=undefined){
+                $("#grid").data("kendoGrid").destroy();
+            }
+            $("#grid").kendoGrid({columns:columns});
         }
     }
     

@@ -2,10 +2,29 @@
     <div class="col-md-3">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                Data Streaming
+                Data Filter
             </div>
             <div class="panel-body">
-                <div id="gridstream" style="width:100%"></div>
+                <form class="form-horizontal">
+                    <div class="form-group form-group-sm">
+                        <label for="inputEmail3" class="col-sm-3 control-label">Table</label>
+                        <div class="col-sm-9">
+                        <input id="tables" placeholder="Select Table">
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <label for="inputPassword3" class="col-sm-3 control-label">Search</label>
+                        <div class="col-sm-9">
+                        <input type="text" class="form-control" id="search" placeholder="search">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <button type="submit" class="btn btn-sm btn-default">Refresh</button>
+                            <button type="submit" class="btn btn-sm btn-success">Add Filter</button>
+                        </div>
+                    </div>
+                    </form>
             </div>
         </div>
     </div>
@@ -13,100 +32,71 @@
     <div class="col-md-9">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                Total Cost
+                Data Vizualizer
             </div>
             <div class="panel-body">
-                <div id="chartpower" class="chart3"></div>
+                <div id="griddata" class="grid"></div>
             </div>
         </div>
-        
+
         <div class="panel panel-primary">
             <div class="panel-heading">
-                Cost per Unit
+                Data Viewer
             </div>
             <div class="panel-body">
-                <div id="charttime" class="chart3"></div>
-            </div>
-        </div>
-        
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Qty
-            </div>
-            <div class="panel-body">
-                <div id="chartspeed" class="chart3"></div>
+                <div id="griddata" class="grid"></div>
             </div>
         </div>
     </div>
-    
-    <!--
-    <div class="col-md-3">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Monthly Forecast
-            </div>
-            <div class="panel-body">
-                &nbsp;
-            </div>
-        </div>
-        
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                FY Forecast
-            </div>
-            <div class="panel-body">
-                &nbsp;
-            </div>
-        </div>
-    </div>
-    -->
 </div>
 
 <script>
-    var columns = [
-            { field: "_id.prodlane", title:"Product Lane", width: 80, locked: true, lockable: true },
-            { field: "qty", title:"Qty", width: 80, attributes: { style: "text-align:right"}, format:"{0:N1}"},
-            { field: "costtotal", title:"Cost", width: 80, attributes: { style: "text-align:right"}, format:"{0:N1}"},
-            { field: "costperunit", title:"Per Unit", width: 80, attributes: { style: "text-align:right"}, format:"{0:N2}"}
-            //{ field: "LE", title: "LE", locked: true, lockable: true, columns: [{ field: "LE.Days", title: "Days", width: 100 }, { field: "LE.Cost", title: "Cost", width: 100 }] },
-            //{ field: "OP", title: "OP", locked: true, lockable: true, columns: [{ field: "OP.Days", title: "Days", width: 100 }, { field: "OP.Cost", title: "Cost", width: 100 }] },
-        ];
+    var metas = [];
+    var columns = [];
 
     model.lastingestion = ko.observable(new Date(5000,1,1));
     $(document).ready(function(){
-        ecGrid($('#gridstream'),{
-                        dataSource: ecDs(),
-                        //pageable: true,
-                        sortable: true,
-                        resizable: true,
-                        height: 400,
-                        columns: columns,
-                        scrollable: true
-                    });
-                    
-         ecChart($("#chartpower"),makeChartConfig([{
-                field: "costtotal",
-                color: "green"
-            }]));
-            
-        ecChart($("#charttime"),makeChartConfig([{
-                field: "costperunit",
-                color: "#5b8f00"
-        },
-            {
-                field: "qty",
-                color: "blue",
-                type:"line"
-            }]));
-            
-        ecChart($("#chartspeed"),makeChartConfig([{
-                field: "qty",
-                color: "#5b8f00"
-            }]));
-                    
-        checkStream();
-        checkChart();
+       getTableList()
     })
+
+    function getTableList(){
+        ajaxPost("{{BaseUrl}}rest/tables",
+        {},
+        function(result){
+            if(result.Status=="OK"){
+                metas = result.Data;
+                var names = [];
+                result.Data.forEach(function(d){
+                    names.push(d._id);
+                })
+
+                $("#tables").kendoDropDownList({
+                    dataSource: {data: names},
+                    change: function(e){
+                        selected = this.value();
+                        changeTable(selected);
+                    }
+                });
+
+                changeTable(names[0]);
+            }
+        });
+    }
+
+    function changeTable(tableid){
+        var model, found=false;
+
+        metas.forEach(function(m){
+            if(m._id==tableid){
+                model=m.model;
+                found=true;
+            }
+        })
+
+        if(found){
+            //alert(kendo.stringify(model));
+        }
+    }
     
     //icheck = 0;
     function checkStream(){
@@ -194,7 +184,7 @@
             $("#chartspeed").data("kendoChart").setDataSource(new kendo.data.DataSource({
                 data: dsData
             }));
-            window.setTimeout(checkChart,3000);    
+            //window.setTimeout(checkChart,3000);    
         });
     }
 </script>

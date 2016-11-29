@@ -41,9 +41,8 @@ func (r *Rest) Data(ctx *knot.WebContext) interface{} {
 	res := toolkit.NewResult()
 
 	datareq := new(DataRequest)
-	if e = ctx.GetPayload(&datareq); e != nil {
-		return res.SetErrorTxt("Unable to load request")
-	}
+	datareq.Table = ctx.QueryDef("table", "")
+	datareq.Take = toolkit.ToInt(ctx.QueryDef("take", "10"), toolkit.RoundingAuto)
 
 	c := conn()
 	defer c.Close()

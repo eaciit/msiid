@@ -53,6 +53,7 @@
 <script>
     var metas = [];
     var columns = [];
+    var dsgrid;
 
     model.lastingestion = ko.observable(new Date(5000,1,1));
     $(document).ready(function(){
@@ -107,7 +108,24 @@
             if($("#grid").data("kendoGrid")!=undefined){
                 $("#grid").data("kendoGrid").destroy();
             }
-            $("#grid").kendoGrid({columns:columns});
+           
+            dsgrid = new kendo.data.DataSource({
+                transport:{
+                    read:{
+                        url:"{{BaseUrl}}rest/data?table=" + tableid,
+                        dataType:"json"
+                    }
+                },
+                schema:{
+                    data:"Data"
+                },
+                pageSize:10
+            });
+            
+            $("#grid").kendoGrid({
+                dataSource:dsgrid,
+                //height: 543,
+                columns:columns});
         }
     }
     

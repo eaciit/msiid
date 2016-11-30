@@ -1,0 +1,57 @@
+ <script>
+
+    model.UserId = ko.observable("");
+    model.Password = ko.observable("");
+    model.ErrorMsg = ko.observable("");
+ </script>
+
+        <center>
+        <div class="panel panel-primary" style="width:300px">
+            <div class="panel-heading">
+                MSI POC Login
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal">
+                    <div class="form-group form-group-sm">
+                        <label for="inputEmail3" class="col-sm-3 control-label">User ID</label>
+                        <div class="col-sm-9">
+                        <input id="userid" placeholder="User ID" class="form-control" data-bind="value:UserId">
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+                        <div class="col-sm-9">
+                        <input type="password" class="form-control" id="search" placeholder="Password" data-bind="value:Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <button type="submit" class="btn btn-sm btn-primary" data-bind="click:Auth">Login</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <center>
+                                <span style="font-weight:bold" data-bind="text:ErrorMsg"></span>
+                            </center>
+                        </div>
+                    </div>
+                    </form>
+            </div>
+        </div>
+        </center>
+<script>
+    model.Auth = function(){
+        authrequest = {
+            UserId:model.UserId(),
+            Passwod:model.Password()
+        };
+        $.post("{{BaseUrl}}login/auth",authrequest,function(d){
+            if(d.Status=="OK"){
+                window.location.replace("{{BaseUrl}}dashboard/index");
+            }else{
+                model.ErrorMsg(d.Message);
+            }
+        })
+    }
+</script>

@@ -1,20 +1,28 @@
 package main
 
 import (
-	//"eaciit/mfg"
+	"net/http"
 	"time"
 
-	//"github.com/eaciit/crowd.dev"
-
 	"github.com/eaciit/knot/knot.v1"
+	"github.com/eaciit/toolkit"
 )
 
 type Dashboard struct {
 }
 
 func (d *Dashboard) Index(ctx *knot.WebContext) interface{} {
-	ctx.Config.OutputType = knot.OutputTemplate
-	return struct{}{}
+	loginid := ctx.Session("loginid", "").(string)
+	if loginid == "" {
+		ctx.Config.OutputType = knot.OutputJson
+		ctx.Server.Log().Warning("No user")
+		http.Redirect(ctx.Writer, ctx.Request, "/login/index", 301)
+		return toolkit.NewResult()
+	} else {
+		ctx.Server.Log().Info("User: " + loginid)
+		ctx.Config.OutputType = knot.OutputTemplate
+		return struct{}{}
+	}
 }
 
 type timedata struct {

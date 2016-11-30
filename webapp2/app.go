@@ -24,6 +24,7 @@ func App() *knot.App {
 	app.Static("static", filepath.Join(wd, "assets"))
 	app.Register(&Dashboard{})
 	app.Register(&Rest{})
+	app.Register(&Login{})
 	app.DefaultOutputType = knot.OutputHtml
 	return app
 }
@@ -50,7 +51,7 @@ func main() {
 
 	otherRoutes := map[string]knot.FnContent{
 		"/": func(r *knot.WebContext) interface{} {
-			http.Redirect(r.Writer, r.Request, "/dashboard/index", 301)
+			http.Redirect(r.Writer, r.Request, "/login/index", 301)
 			return true
 		},
 	}

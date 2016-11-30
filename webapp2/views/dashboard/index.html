@@ -99,9 +99,15 @@
             columns = [];
             model.forEach(function(f,i){
                 //if(i<10){
+
+                    ftitle = f.name
+                    if(f.description!=undefined && f.description!="" && f.description!=0)
+                        ftitle = f.description;
+
                     if(f.fieldtype.indexOf("int")>=0 || f.fieldtype.indexOf("decimal")>0){
                         columns.push({
                             field:f.name,
+                            title:ftitle,
                             width:80,
                             attributes:{
                                 style:"text-align:right"
@@ -110,6 +116,7 @@
                     }else{
                         columns.push({
                             field:f.name,
+                            title:ftitle,
                             width:120
                         });
                     }
